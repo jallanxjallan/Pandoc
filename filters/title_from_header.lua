@@ -2,10 +2,10 @@
 local title
 
 function Header(el)
-  if el.level == 1 then
-    title = el.content
+  if el.level == 1 and title == nil then
+    title = pandoc.utils.stringify(el)
+    return {}
   end
-  return {}
 end
 
 function Meta(meta)

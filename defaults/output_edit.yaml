@@ -1,0 +1,6 @@
+---
+input-file: 02 LIFE STORY PART 1 1916-1945.md
+output-file: chapter_1_roel_review.docx
+strip-comments: false
+filters:
+  - smallcaps.lua

@@ -1,0 +1,7 @@
+---
+standalone: False
+writer: markdown
+filters: 
+- inline_notes.lua
+- split_document_on_heading.lua
+
