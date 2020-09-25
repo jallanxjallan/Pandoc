@@ -1,11 +1,9 @@
-local file_prefix
+sredis = require "sredis"
 
-function Header(elem)
-  filepath = 'tester'..elem.identifier..'md'
-  rs = pandoc.pipe('pandoc', {}, 'Test input')
-
-end
 
 function Meta(meta)
-  file_prefix = meta['file_prefix']
+  index_key = sredis.index_key(meta)
+  print('this is the '..index_key)
+  -- print(PANDOC_STATE['input_files'][1])
+  -- rs = pandoc.pipe('redis-cli', {'hset', 'test:lua', 'msg', 'This is a test' }, '')
 end

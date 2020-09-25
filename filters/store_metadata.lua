@@ -5,7 +5,6 @@ function Meta(meta)
 
   for k,v in pairs(meta) do
     data = pandoc.utils.stringify(v)
-    local rs = pandoc.pipe("redis-cli", {"hset",}, redis_key, k, data)
-    print(rs)
+    pandoc.pipe("redis-cli", {"hset",}, redis_key, k, data)
   end
 end

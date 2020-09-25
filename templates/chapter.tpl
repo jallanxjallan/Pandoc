@@ -1,0 +1,5 @@
+## $component$ $seq$
+
+**$title$**
+
+**$subtitle$**
