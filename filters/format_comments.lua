@@ -1,8 +1,7 @@
+local comment_id = 0
 
-comment_id = 0
 
-
-function Span (elem)
+function Span(elem)
   comment = elem.attributes['comment']
   if comment == nil then
     return elem

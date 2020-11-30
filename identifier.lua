@@ -1,15 +1,10 @@
 require 'math'
 
+identifier = {}
+
 local random = math.random
 
-function Meta(meta)
-  if meta.identifier == nil then
-    meta.identifier = uuid()
-  end
-  return meta
-end
-
-function uuid()
+function identifier.uuid()
     local template ='bxxxxxxx'
     math.randomseed(os.clock()*100000000000)
     return string.gsub(template, '[xy]', function (c)
@@ -17,3 +12,5 @@ function uuid()
         return string.format('%x', v)
     end)
 end
+
+return identifier

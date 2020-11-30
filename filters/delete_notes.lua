@@ -1,7 +1,6 @@
 --!/usr/local/bin/lua
 function Note(el)
-  text = pandoc.utils.stringify(el)
-  pandoc.Inline(pandoc.Str("^["), text, pandoc.Str("]"))
+  return {}
 end
 
 

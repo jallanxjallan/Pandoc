@@ -11,19 +11,35 @@ end
   -- str = str:gsub("(%a)([%w_']*)", tchelper)
 
 function Pandoc(doc)
+  tempdir = pandoc.pipe('mktemp', {'-d'}, ''):gsub('\n', '')
   local meta = doc.meta
-  local target_dir = meta['tmpdir']
-  local source = meta['source']
+  local input_file = PANDOC_STATE['input_files'][1]
+  local output_file = PANDOC_STATE['output_file']
+  local output_filename = output_file:match( "([^/]+)$")
+
   local sections = pandoc.utils.make_sections(false, 1, doc.blocks)
   for i, section in pairs(sections) do
       local idn = section.identifier
-      -- meta['sequence'] = tostring(i)
-      seq = tostring(i)
-      local title = idn:gsub("-", " ")
-      meta['title'] = title:gsub("(%a)([%w_']*)", tchelper)
-      local filepath = target_dir.."/"..seq..'_'..idn..'.json'
       local sub_doc = pandoc.Pandoc(section, meta)
-      pandoc.utils.run_json_filter(sub_doc, 'tee', {filepath})
+      -- meta['sequence'] = tostring(i)
+      local seq = tostring(i)
+      local name = idn:gsub("-", " ")
+      meta['title'] = name:gsub("(%a)([%w_']*)", tchelper)
+      local section_filename = output_filename:gsub('.md', '_'..name:gsub(" ", "_"))
+
+      local json_filepath = tempdir..'/'..section_filename..'.json'
+
+      local output_filepath = output_file:gsub(output_filename, section_filename..'.md')
+
+      pandoc.utils.run_json_filter(sub_doc, 'tee', {json_filepath})
+      local args = {'-s',
+        '--defaults=split_defaults',
+        '--output='..output_filepath,
+        json_filepath
+      }
+      -- --
+      rs = pandoc.pipe('pandoc', args, '')
+
     end
     return pandoc.Pandoc({})
 end

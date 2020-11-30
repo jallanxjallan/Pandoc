@@ -5,7 +5,6 @@ date: $date$
 location: $location$
 ---
 
-```synopsis
 $body$
 ```
 

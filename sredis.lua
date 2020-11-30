@@ -1,20 +1,27 @@
 sredis = {}
 
-function sredis.document_key(meta)
-  project = pandoc.utils.stringify(meta['project'])
-  identifier = pandoc.utils.stringify(meta['identifier'])
-  document_key = string.gsub('project:document:identifier','project', project)
-  return string.gsub(document_key,'identifier', identifier)
+function sredis.key(namespace, component, identifier)
+  local key = string.gsub('namespace:component:identifier','namespace', namespace)
+  key = string.gsub(key,'component', component)
+  key = string.gsub(key,'identifier', identifier)
+  return key
 end
 
-function sredis.index_key(meta)
-  project = pandoc.utils.stringify(meta['project'])
-  identifier = pandoc.utils.stringify(meta['identifier'])
-  return string.gsub('project:filepath:index','project', project)
+function sredis.expire(key, time)
+  pandoc.pipe("redis-cli", {'expire', key, time}, '')
 end
 
-function sredis.store_value(rkey, key, value)
-  pandoc.pipe("redis-cli", {"hset",rkey, key, value}, '')
+function sredis.query(args)
+  return pandoc.pipe("redis-cli", args, '')
+end
+
+function sredis.inode(filepath)
+  line = pandoc.pipe("stat", {'--terse', filepath}, '')
+  stat = {}
+  for substring in line:gmatch("%S+") do
+    table.insert(stat, substring)
+  end
+  return(stat[8])
 end
 
 return sredis
