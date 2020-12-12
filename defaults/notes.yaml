@@ -1,0 +1,5 @@
+---
+template: note
+filters:
+  - make_document_identifier.lua
+  - print_output_file.lua
