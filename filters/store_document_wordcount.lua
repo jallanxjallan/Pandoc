@@ -11,11 +11,10 @@ wordcount = {
 }
 
 function Pandoc(el)
-    filepath = PANDOC_STATE['input_files'][1]
-    inode = sredis.inode(filepath)
-    key = sredis.key('document', 'metadata', inode)
     -- skip metadata, just count body:
-    pandoc.walk_block(pandoc.Div(el.blocks), wordcount)
-    sredis.query({'hset', key, 'words', words})
-    sredis.expire(key, 3600)
+  pandoc.walk_block(pandoc.Div(el.blocks), wordcount)
+
+  document_key = sredis.document_key()
+  print(document_key..'key')
+  sredis.query({'hset', document_key, 'wordcount', words})
 end
