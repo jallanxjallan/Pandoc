@@ -1,8 +1,8 @@
 ---
 identifier: $identifier$
 title: $title$
-source: Created
-status: New 
+source: $source$
+status: $status$ 
 ---
 
 $body$

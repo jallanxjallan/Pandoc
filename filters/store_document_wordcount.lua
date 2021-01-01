@@ -14,7 +14,6 @@ function Pandoc(el)
     -- skip metadata, just count body:
   pandoc.walk_block(pandoc.Div(el.blocks), wordcount)
 
-  document_key = sredis.document_key()
-  print(document_key..'key')
-  sredis.query({'hset', document_key, 'wordcount', words})
+  wordcount_key = sredis.component_key(el.meta, 'wordcount')
+  sredis.query({'set', wordcount_key, words})
 end

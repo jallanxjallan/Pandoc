@@ -14,9 +14,6 @@ extract_content = {
 function Pandoc(el)
     -- skip metadata, just count body:
     pandoc.walk_block(pandoc.Div(el.blocks), extract_content)
-    document_key = sredis.document_key()
-    content_key = sredis.key('document', 'content', identifier.uuid())
+    content_key = sredis.component_key(el.meta, 'content')
     sredis.query({'set', content_key, content})
-    sredis.expire(content_key, 3600)
-    sredis.query({'hset', document_key, 'content', content_key})
 end

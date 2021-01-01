@@ -6,9 +6,9 @@ function Pandoc(doc)
   local title = 'None'
   for k,v in pairs(doc.meta) do
     if k == "title" then
-      title =  pandoc.utils.stringify(v)
+      title = pandoc.utils.stringify(v)
     end
   end
-  table.insert (doc.blocks, 1, pandoc.Header(3, text.upper(title)))
+  table.insert (doc.blocks, 1, pandoc.Header(1, title))
   return pandoc.Pandoc(doc.blocks)
 end

@@ -24,11 +24,10 @@ function sredis.inode(filepath)
   return(stat[8])
 end
 
-function sredis.document_key()
-  inode = sredis.inode(PANDOC_STATE['input_files'][1])
-  index_key = 'document:inode.document:index'
-  document_key = sredis.query({'hget', index_key, inode})
-  return document_key:gsub("\n", "")
+function sredis.component_key(meta, component)
+  document_key = meta['document_key']
+  component_key = sredis.query({'hget', document_key, component})
+  return component_key:gsub("\n", "")
 end
 
 return sredis
