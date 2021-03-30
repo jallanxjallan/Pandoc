@@ -1,7 +1,10 @@
 ---
-standalone: False
+standalone: True
 writer: markdown
+template: edit_document
 filters: 
 - inline_notes.lua
-- split_document_on_heading.lua
+- split_on_header.lua
+- strip_top_header.lua
+- make_document_identifier.lua
 

@@ -1,5 +1,7 @@
 sredis = {}
 
+local document_index = 'document:inode.document_key:index'
+
 function sredis.key(namespace, component, identifier)
   local key = string.gsub('namespace:component:identifier','namespace', namespace)
   key = string.gsub(key,'component', component)
@@ -24,10 +26,11 @@ function sredis.inode(filepath)
   return(stat[8])
 end
 
-function sredis.component_key(meta, component)
-  document_key = meta['document_key']
-  component_key = sredis.query({'hget', document_key, component})
-  return component_key:gsub("\n", "")
+function sredis.document_key()
+  filepath = PANDOC_STATE['input_files'][1]
+  inode = sredis.inode(filepath)
+  document_key = sredis.query({'hget', document_index, inode})
+  return document_key:gsub("\n", "")
 end
 
 return sredis

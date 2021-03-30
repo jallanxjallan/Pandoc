@@ -2,9 +2,9 @@
 reader: markdown
 writer: docx
 standalone: True
-# reference-doc: /home/jeremy/pandoc/templates/review.docx
 filters:
   - format_comments.lua
-  - delete_notes.lua
-  - delete_strikeout.lua    
+  - strip_notes.lua   
+  - strip_strikeout.lua
+
 

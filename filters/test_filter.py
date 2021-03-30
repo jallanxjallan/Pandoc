@@ -12,7 +12,8 @@ Pandoc filter using panflute
 import panflute as pf
 
 def prepare(doc):
-    pf.debug(doc.container)
+    pf.debug(dir(doc.container))
+
 
 def action(elem, doc):
     pass

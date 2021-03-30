@@ -9,6 +9,6 @@ function Pandoc(doc)
     sredis.query({'hset', key, k, pandoc.utils.stringify(v)})
   end
   sredis.expire(key, 60)
-  table.insert (doc.blocks, 1, pandoc.CodeBlock(key, {class='metadata_ref'}))
+  table.insert (doc.blocks, 1, pandoc.Header(9, pandoc.Str(key)))
   return pandoc.Pandoc(doc.blocks)
 end
