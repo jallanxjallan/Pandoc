@@ -1,10 +1,12 @@
---!/usr/local/bin/lua
-sredis = require "sredis"
-identifier = require "identifier"
+local sredis = require "sredis"
 
 function Meta(meta)
-  document_key = meta['document_key']
-  for k,v in pairs(meta) do
-    sredis.query({'hset', document_key, k, pandoc.utils.stringify(v)})
+  if meta['namespace'] == nil then
+    return {}
   end
+  local document_key = sredis.document_key(meta['namespace'], 'metadata')
+  for key, value in pairs(meta) do
+    sredis.query({'hset', document_key, key, pandoc.utils.stringify(value)})
+  end
+  sredis.expire(document_key, 60)
 end

@@ -1,26 +1,15 @@
   --!/usr/local/bin/lua
+local identifier = require 'identifier'
 
-identifier = require "identifier"
-sredis = require "sredis"
-
-local meta
-local output_filename
-local source
 local tempdir
-local input_file
-local output_file
-local idn
-local seq = 0
-local title
-
-function store_metadata(meta, identifier)
-  document_key = sredis.key('document', 'metadata', identifier)
-  for k,v in pairs(meta) do
-    sredis.query({'hset', document_key, k, pandoc.utils.stringify(v)})
-  end
-  sredis.expire(document_key, 60)
-  return document_key
-end
+local input_filepath
+local output_filepath
+local input_filename
+local output_filename
+local output_extention
+local output_stem
+local input_stem
+local input_meta
 
 local function tchelper(first, rest)
      return first:upper()..rest:lower()
@@ -35,69 +24,69 @@ end
 
 remove_header = {
     Header = function(el)
-      if el.level == 1
-        title = el.text
+      if el.level == 1 then
         return {}
       end
     end
 }
 
-function export_section(i, section)
-  seq = seq + 1
+function export_section(sequence, section)
+  -- local section_filename = output_filename:gsub('.md', '_'..section.identifier)
 
-  -- meta['sequence'] = tostring(i)
+  local file_id = identifier.uuid()
+  local json_filepath = tempdir..'/'..file_id..'.json'
+  local section_filename = output_stem.."-"..section.identifier.."."..output_extention
+  local section_filepath = output_filepath:gsub(output_filename, section_filename)
+  local section_metadata
+  if input_meta ~= nil then
+    section_metadata = input_meta
+  else
+    section_metadata = {}
+  end
 
-  local name = section.identifier:gsub("-", " ")
+  section_metadata['source'] = input_stem
+  section_metadata['sequence'] = tostring(sequence)
+  section_metadata['title'] = section.identifier:gsub("-", " ")
 
-  sub_meta = {}
-  sub_meta['identifier'] = identifier()
-  sub_meta['title'] = remove_header()
-  -- name:gsub("(%a)([%w_']*)", tchelper)
-  sub_meta['source'] = source
-  sub_meta['seq'] = tostring(seq)
-  sub_meta['status'] = 'Imported'
+  local sub_doc = pandoc.Pandoc(section.content, section_metadata)
 
-  local section_filename = output_filename:gsub('.md', '_'..name:gsub(" ", "_"))
-
-  local json_filepath = tempdir..'/'..section_filename..'.json'
-
-  local output_filepath = output_file:gsub(output_filename, section_filename..'.md')
-
-  local sub_doc = pandoc.Pandoc(section.content, sub_meta)
-
-  -- pandoc.walk_block(pandoc.Div(sub_doc), remove_header)
+  -- local div = pandoc.Div(sub_doc.blocks)
+  -- local sub_blocks = pandoc.walk_block(div.content, remove_header)
 
   pandoc.utils.run_json_filter(sub_doc, 'tee', {json_filepath})
 
   local args = {
-    '--output='..output_filepath,
+    '--standalone',
+    '--lua-filter=strip_headers.lua',
+    '--lua-filter=store_document_metadata.lua',
+    '--output='..section_filepath,
     json_filepath
   }
-  -- --
-  rs = pandoc.pipe('pandoc', args, '')
-  return sub_meta['title']..','..output_filepath
+
+  rs = pandoc.pipe("pandoc", args, '')
+
+  return section_filepath
 end
 
-
 function Pandoc(doc)
-  meta = doc.meta
-  source = meta['source']
+  input_meta = doc.meta
   tempdir = pandoc.pipe('mktemp', {'-d'}, ''):gsub('\n', '')
-  input_file = PANDOC_STATE['input_files'][1]
-  output_file = PANDOC_STATE['output_file']
-
-  output_filename = output_file:match( "([^/]+)$")
-
+  input_filepath = PANDOC_STATE['input_files'][1]
+  input_filename = input_filepath:match( "([^/]+)$")
+  input_extention = input_filename:match("[^.]+$")
+  input_stem = input_filename:gsub("."..input_extention, '')
+  output_filepath = PANDOC_STATE['output_file']
+  output_filename = output_filepath:match( "([^/]+)$")
+  output_extention = output_filename:match("[^.]+$")
+  output_stem = output_filename:gsub("."..output_extention, '')
+  namespace = input_meta['namespace']
   local sections = pandoc.utils.make_sections(false, 1, doc.blocks)
   if #sections == 1 then
     return doc
   else
-    for i, section in pairs(sections) do
+    for sequence, section in pairs(sections) do
       if section.identifier ~= nil then
-        document_key = export_section(i, section)
-        if document_key ~= nil then
-          print(document_key)
-        end
+        rs = export_section(sequence, section)
       end
     end
     os.exit()

@@ -1,14 +1,5 @@
 sredis = {}
 
-local document_index = 'document:inode.document_key:index'
-
-function sredis.key(namespace, component, identifier)
-  local key = string.gsub('namespace:component:identifier','namespace', namespace)
-  key = string.gsub(key,'component', component)
-  key = string.gsub(key,'identifier', identifier)
-  return key
-end
-
 function sredis.expire(key, time)
   pandoc.pipe("redis-cli", {'expire', key, time}, '')
 end
@@ -26,11 +17,10 @@ function sredis.inode(filepath)
   return(stat[8])
 end
 
-function sredis.document_key()
-  filepath = PANDOC_STATE['input_files'][1]
-  inode = sredis.inode(filepath)
-  document_key = sredis.query({'hget', document_index, inode})
-  return document_key:gsub("\n", "")
+function sredis.document_key(namespace, component)
+  local key = string.gsub('namespace:component:identifier','namespace', namespace)
+  key = string.gsub(key,'component', component)
+  return string.gsub(key,'identifier', sredis.inode(PANDOC_STATE['input_files'][1]))
 end
 
 return sredis
