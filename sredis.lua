@@ -9,18 +9,21 @@ function sredis.query(args)
 end
 
 function sredis.inode(filepath)
-  line = pandoc.pipe("stat", {'--terse', filepath}, '')
-  stat = {}
+  local line = pandoc.pipe("stat", {'--terse', filepath}, '')
+  local stat = {}
   for substring in line:gmatch("%S+") do
     table.insert(stat, substring)
   end
   return(stat[8])
 end
 
-function sredis.document_key(namespace, component)
-  local key = string.gsub('namespace:component:identifier','namespace', namespace)
-  key = string.gsub(key,'component', component)
-  return string.gsub(key,'identifier', sredis.inode(PANDOC_STATE['input_files'][1]))
+function sredis.document_component_key(component, filepath)
+  local dck = 'inode:component'
+  local inode = sredis.inode(filepath)
+  dck = dck:gsub('inode', inode)
+  dck = dck:gsub('component', component)
+  component_key = sredis.query({'hget', 'document:index:inode.key', dck})
+  return component_key:gsub('\n$', '')
 end
 
 return sredis

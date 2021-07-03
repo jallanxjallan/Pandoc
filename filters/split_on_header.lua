@@ -5,6 +5,7 @@ local tempdir
 local input_filepath
 local output_filepath
 local input_filename
+local output_dir
 local output_filename
 local output_extention
 local output_stem
@@ -35,8 +36,7 @@ function export_section(sequence, section)
 
   local file_id = identifier.uuid()
   local json_filepath = tempdir..'/'..file_id..'.json'
-  local section_filename = output_stem.."-"..section.identifier.."."..output_extention
-  local section_filepath = output_filepath:gsub(output_filename, section_filename)
+  local section_filepath = output_dir.."/"..output_stem.."-"..tostring(sequence).."-"..section.identifier.."."..output_extention
   local section_metadata
   if input_meta ~= nil then
     section_metadata = input_meta
@@ -46,7 +46,8 @@ function export_section(sequence, section)
 
   section_metadata['source'] = input_stem
   section_metadata['sequence'] = tostring(sequence)
-  section_metadata['title'] = section.identifier:gsub("-", " ")
+  section_metadata['title'] = section.identifier:gsub("-", " "):gsub("(%a)([%w_']*)", tchelper)
+
 
   local sub_doc = pandoc.Pandoc(section.content, section_metadata)
 
@@ -58,7 +59,6 @@ function export_section(sequence, section)
   local args = {
     '--standalone',
     '--lua-filter=strip_headers.lua',
-    '--lua-filter=store_document_metadata.lua',
     '--output='..section_filepath,
     json_filepath
   }
@@ -77,9 +77,11 @@ function Pandoc(doc)
   input_stem = input_filename:gsub("."..input_extention, '')
   output_filepath = PANDOC_STATE['output_file']
   output_filename = output_filepath:match( "([^/]+)$")
+  output_dir = output_filepath:match("(.-)([^\\/]-%.?([^%.\\/]*))$")
   output_extention = output_filename:match("[^.]+$")
   output_stem = output_filename:gsub("."..output_extention, '')
-  namespace = input_meta['namespace']
+
+  -- namespace = input_meta['namespace']
   local sections = pandoc.utils.make_sections(false, 1, doc.blocks)
   if #sections == 1 then
     return doc

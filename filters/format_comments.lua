@@ -2,7 +2,7 @@ local comment_id = 0
 
 
 function Span(elem)
-  comment = elem.attributes['comment']
+  comment = elem.attributes['c']
   if comment == nil then
     return elem
   end

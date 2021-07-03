@@ -1,3 +1,4 @@
+
 function Link(elem)
-  return elem.content
+  return {}
 end

@@ -1,6 +1,6 @@
 
-function Pandoc(doc)
-  for i, section in pairs(doc) do
-    print(i)
+function Span(elem)
+  for i, a in pairs(elem.attributes) do
+    print(i, a)
   end
 end

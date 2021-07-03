@@ -12,11 +12,14 @@ Pandoc filter using panflute
 import panflute as pf
 
 def prepare(doc):
-    pf.debug(dir(doc.container))
+    for att in  ('ancestor', 'api_version', 'container', 'content', 'doc', 'format', 'get_metadata', 'index', 'location', 'metadata', 'next', 'offset', 'pandoc_reader_options', 'pandoc_version', 'parent'):
+        rs = getattr(doc, att)
+        # pf.debug(att, rs)
+
 
 
 def action(elem, doc):
-    pass
+    pf.debug(doc.offset(elem))
 
 def finalize(doc):
     pass

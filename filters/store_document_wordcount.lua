@@ -1,5 +1,6 @@
-sredis = require "sredis"
-words = 0
+local sredis = require "sredis"
+local identifier = require 'identifier'
+local words = 0
 
 wordcount = {
   Str = function(el)
@@ -11,8 +12,12 @@ wordcount = {
 }
 
 function Pandoc(el)
-    -- skip metadata, just count body:
+  local index_key = el.meta['wordcount']
+  local document_key = identifier.uuid()
+  local filepath = PANDOC_STATE['input_files'][1]
   pandoc.walk_block(pandoc.Div(el.blocks), wordcount)
-  document_key = sredis.document_key(el.meta['namespace'], 'wordcount')
   sredis.query({'set', document_key, words})
+  sredis.query({'hset', index_key, filepath, document_key})
+  sredis.expire(document_key, 10)
+  sredis.expire(index_key, 10)
 end
